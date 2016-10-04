@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace KJade.Compiler.Html
 {
-    public class JadeHtmlCompiler : IJadeCompiler
+    public class JadeHtmlCompiler : JadeCompiler
     {
-        public IJadeCompileResult Compile(TextReader input)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
