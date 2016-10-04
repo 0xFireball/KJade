@@ -8,7 +8,7 @@ namespace KJade.Parser
     /// </summary>
     public class JadeParser
     {
-        public JRootNode ParseTokens(List<Token> tokens)
+        public JRootNode ParseTokens(List<JadeToken> tokens)
         {
             return null; //TODO: implement
         }

@@ -31,8 +31,8 @@ namespace KJade.Util
         /// <returns></returns>
         public static string EatString(this string str, string eat)
         {
-            if (!str.StartsWith(eat, System.StringComparison.CurrentCulture)) { throw new ArgumentException("The input string must begin with the string to eat.", nameof(str)); }
-            for (int i = 0; str[0] == eat[0]; i++)
+            if (!str.StartsWith(eat, StringComparison.CurrentCulture)) { throw new ArgumentException("The input string must begin with the string to eat.", nameof(str)); }
+            for (int i = 0; eat.Length > 0 && str[0] == eat[0]; i++)
             {
                 str = str.Substring(1);
                 eat = eat.Substring(1);

@@ -1,4 +1,5 @@
 ﻿using KJade.Util;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,18 +14,18 @@ namespace KJade.Parser
             ReadCode(input.ToString());
         }
 
-        private int ReadIndentLevel(string line, string indentIndicator)
+        private Tuple<int, string> ReadIndentedToken(string line, string indentIndicator)
         {
-            if (indentIndicator == "") return 0; //If no indents, then the indent level is 0
+            if (indentIndicator == "") return new Tuple<int, string>(0, line); //If no indents, then the indent level is 0
             string rl = line;
             string ii = indentIndicator;
             int indLv = 0;
             for (int i = 1; rl.StartsWith(ii, System.StringComparison.CurrentCulture); i++)
             {
-                rl.EatString(ii);
+                rl = rl.EatString(ii);
                 indLv = i;
             }
-            return indLv;
+            return new Tuple<int, string>(indLv, rl);
         }
 
         private string InferIndentIndicator(string[] codeLines)
@@ -57,15 +58,30 @@ namespace KJade.Parser
             return "";
         }
 
-        public List<Token> ReadCode(string input)
+        public List<JadeToken> ReadCode(string input)
         {
             input = input.Strip(IgnoredCharacters); //Strip useless characters
+
+            Queue<RawToken> rawTokens = new Queue<RawToken>(); //a queue of raw tokens to be processed
             string[] codeLines = input.Split('\n');
             string indentIndicator = InferIndentIndicator(codeLines);
+            //Process indentation structure
             foreach (string line in codeLines)
             {
-                var indentLevel = ReadIndentLevel(line, indentIndicator);
-                var lToken = new RawToken { };
+                //Read an indented token that has an indentation amount and a value not including the indent characters
+                var indentedToken = ReadIndentedToken(line, indentIndicator);
+
+                var lToken = new RawToken
+                {
+                    IndentLevel = indentedToken.Item1,
+                    Value = indentedToken.Item2,
+                };
+                rawTokens.Enqueue(lToken);
+            }
+            //Create real Token objects based on the indentation structure
+            foreach (var rawTk in rawTokens)
+            {
+                
             }
             return null; //TODO: update
         }
