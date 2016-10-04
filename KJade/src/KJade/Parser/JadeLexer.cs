@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace KJade.Parser
 {
@@ -79,9 +80,43 @@ namespace KJade.Parser
                 rawTokens.Enqueue(lToken);
             }
             //Create real Token objects based on the indentation structure
-            foreach (var rawTk in rawTokens)
+            Queue<JadeToken> jadeTokens = new Queue<JadeToken>();
+            bool multilineScope = false; //whether we are in a multiline scope.
+            int multilineScopeStart = 0;
+            int previousIndentLevel = 0;
+            foreach (var rawTok in rawTokens)
             {
-                
+                var tokValue = rawTok.Value;
+                if (multilineScope) //We're in a special area, normal rules don't apply
+                {
+                    if (rawTok.IndentLevel < multilineScopeStart)
+                    {
+                        //The current indent level is less than where the multiline scope started
+                        //Exit the multiline scope
+                        multilineScope = false;
+                        multilineScopeStart = 0;
+                    }
+                }
+
+                //Normal node token
+                //Look for indicators showing end of node name
+                var nodeRegex = new Regex(@"^\w+(?=(\.|#|\())", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                var nodeNameMatch = nodeRegex.Match(tokValue); //Only match one
+                //If the match succeeded, there was more than just the node name.
+                //Otherwise, the only part of the token value was the node name anyway
+                var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : tokValue;
+
+                var classes = new List<string>();
+                var attributes = new Dictionary<string, string>();
+                var nodeIdAttribute = string.Empty;
+
+                if (tokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
+                {
+                    multilineScope = true;
+                    multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
+                }
+                var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, attributes, rawTok.IndentLevel);
+                previousIndentLevel = rawTok.IndentLevel;
             }
             return null; //TODO: update
         }
