@@ -1,2 +1,4 @@
+
 # KJade
-A parser for the Jade template engine in C#
+
+A parser for a Jade-like templating language
