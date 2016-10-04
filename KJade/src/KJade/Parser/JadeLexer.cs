@@ -1,4 +1,5 @@
 ﻿using KJade.Util;
+using System.Collections.Generic;
 using System.Text;
 
 namespace KJade.Parser
@@ -56,7 +57,7 @@ namespace KJade.Parser
             return "";
         }
 
-        private void ReadCode(string input)
+        public List<Token> ReadCode(string input)
         {
             input = input.Strip(IgnoredCharacters); //Strip useless characters
             string[] codeLines = input.Split('\n');
@@ -66,6 +67,7 @@ namespace KJade.Parser
                 var indentLevel = ReadIndentLevel(line, indentIndicator);
                 var lToken = new RawToken { };
             }
+            return null; //TODO: update
         }
     }
 }
