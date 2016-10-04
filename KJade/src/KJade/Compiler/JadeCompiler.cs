@@ -6,16 +6,16 @@ namespace KJade.Compiler
 {
     public abstract class JadeCompiler : IJadeCompiler
     {
-        public IJadeCompileResult Compile(TextReader input)
+        public IJadeCompileResult Compile(string input)
         {
             var lexer = new JadeLexer();
             lexer = new JadeLexer();
-            var tokens = lexer.ReadCode(input.ReadToEnd());
+            var tokens = lexer.ReadCode(input);
             var parser = new JadeParser();
             var ast = parser.ParseTokens(tokens);
             return CompileFromAst(ast);
         }
 
-        public abstract IJadeCompileResult CompileFromAst(JRootNode ast);
+        protected abstract IJadeCompileResult CompileFromAst(JRootNode ast);
     }
 }

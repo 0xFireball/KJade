@@ -9,7 +9,7 @@ namespace KJade.Compiler.Html
 {
     public class JadeHtmlCompiler : JadeCompiler
     {
-        public override IJadeCompileResult CompileFromAst(JRootNode ast)
+        protected override IJadeCompileResult CompileFromAst(JRootNode ast)
         {
             throw new NotImplementedException();
         }

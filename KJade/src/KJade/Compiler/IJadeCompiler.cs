@@ -4,6 +4,6 @@ namespace KJade.Compiler
 {
     public interface IJadeCompiler
     {
-        IJadeCompileResult Compile(TextReader input);
+        IJadeCompileResult Compile(string input);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using KJade.Compiler.Html;
+using System.IO;
 
 namespace KJade.Test
 {
@@ -7,6 +8,7 @@ namespace KJade.Test
         public static void Main(string[] args)
         {
             var compiler = new JadeHtmlCompiler();
+            compiler.Compile(File.ReadAllText("test.jade"));
         }
     }
 }
