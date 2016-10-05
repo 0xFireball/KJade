@@ -16,15 +16,19 @@ KJade is not intended to be able to handle all Jade syntax; its aim is instead
 to provide a concise templating experience similar to that of Jade/PugJS, but with
 C#/.NET instead of JS.
 
-## Syntax
+## A quick note on supported syntax
 
-KJade syntax is very similar to that of Jade; however, some of the
-latest Jade language features may not yet be available:
+KJade syntax is a subset of Jade syntax. While Jade often has a number
+of different syntaxes that will evaluate to the same result, KJade omits
+such syntactic forms.
+
+For example, Jade supports multiline values for elements with both `|` and a `.` after
+the element name. KJade only supports the `.` method, and treats `|` as part of the element value.
 
 A hierarchy of elements is built based on indentation level. Two nodes on the
 same indentation level end up in the same nesting level in XML.
 
-For example:
+Here's a short document demonstrating some of the syntax:
 
 ```jade
 html
@@ -33,6 +37,16 @@ html
     body
         div.header#intro
             h1 This is a test KJade page.
-            p Hello, World!
+            p.
+                Hello, World!
+                I would write a longer paragraph
+                But i'm too lazy...
+            h3 Three cheers for KJade!
+        //div is automatically inferred if not specified!
+        .container#second
+            h2 This is in a container div!
 ```
+
+Additionally, block comments are not supported, only single line comments with `//` are supported.
+Each comment must be on its own line. Indentation before the `//` is ignored.
 
