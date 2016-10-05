@@ -8,7 +8,8 @@ namespace KJade.Test
         public static void Main(string[] args)
         {
             var compiler = new JadeHtmlCompiler();
-            var compiledHtml = compiler.Compile(File.ReadAllText("test.jade"));
+            var context = new { Name = "Bob" };
+            var compiledHtml = compiler.Compile(File.ReadAllText("test.jade"), context);
             File.WriteAllText("test.jade.html", compiledHtml.Value.ToString());
         }
     }

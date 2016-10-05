@@ -11,7 +11,7 @@ namespace KJade.Compiler
 {
     public abstract class JadeCompiler : IJadeCompiler
     {
-        private static readonly Regex SingleVariableSubstitutionRegex = new Regex(@"(\[e\])?#{.*?}", RegexOptions.Compiled);
+        private static readonly Regex SingleVariableSubstitutionRegex = new Regex(@"(?<Encode>!)?#{model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))}", RegexOptions.Compiled);
 
         /// <summary>
         /// Gets an IEnumerable of capture group values
@@ -143,9 +143,8 @@ namespace KJade.Compiler
 
         public IJadeCompileResult Compile(string input, object model)
         {
-            var replacedInput = input;
             //Replace variables
-            SingleVariableSubstitutionRegex.Replace(input, m =>
+            var replacedInput = SingleVariableSubstitutionRegex.Replace(input, m =>
             {
                 var properties = GetCaptureGroupValues(m, "ParameterName");
                 var substitution = GetPropertyValueFromParameterCollection(model, properties);
@@ -158,7 +157,7 @@ namespace KJade.Compiler
                 {
                     return string.Empty;
                 }
-                return m.Groups["[e]"].Success ? XmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
+                return m.Groups["Encode"].Success ? XmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
             });
             return Compile(replacedInput);
         }
