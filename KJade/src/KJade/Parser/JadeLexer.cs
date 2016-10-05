@@ -1,6 +1,7 @@
 ﻿using KJade.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -80,7 +81,7 @@ namespace KJade.Parser
                 rawTokens.Enqueue(lToken);
             }
             //Create real Token objects based on the indentation structure
-            Queue<JadeToken> jadeTokens = new Queue<JadeToken>();
+            List<JadeToken> jadeTokens = new List<JadeToken>();
             bool multilineScope = false; //whether we are in a multiline scope.
             int multilineScopeStart = 0;
             int previousIndentLevel = 0;
@@ -96,6 +97,16 @@ namespace KJade.Parser
                         multilineScope = false;
                         multilineScopeStart = 0;
                     }
+                    else
+                    {
+                        //We're still in the multiline scope. Edit the previous token.
+                        //Grab the last token
+                        var prevTok = jadeTokens.Last();
+
+                        //Append the current token's value to the previous token, along with a whitespace character
+                        prevTok.Value += rawTok.Value + " ";
+                        continue;
+                    }
                 }
 
                 //Normal node token
@@ -110,12 +121,27 @@ namespace KJade.Parser
                 var attributes = new Dictionary<string, string>();
                 var nodeIdAttribute = string.Empty;
 
+                //Attempt to read classes
+                var classRegex = new Regex(@"\.(\w|-)+");
+                var classMatches = classRegex.Matches(tokValue);
+                //Add matched class names to classes collection
+                foreach (Match classMatch in classMatches)
+                {
+                    classes.Add(classMatch.Value);
+                }
+
+                //Attempt to read id
+                var idRegex = new Regex(@"\#(\w|-)+");
+                var idMatch = idRegex.Match(tokValue);
+                nodeIdAttribute = idMatch.Success ? idMatch.Value : nodeIdAttribute;
+
                 if (tokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
                 {
                     multilineScope = true;
                     multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
                 }
                 var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, attributes, rawTok.IndentLevel);
+                jadeTokens.Add(jTok);
                 previousIndentLevel = rawTok.IndentLevel;
             }
             return null; //TODO: update

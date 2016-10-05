@@ -20,6 +20,8 @@ namespace KJade.Parser
 
         public int IndentationLevel { get; set; }
 
+        public string Value { get; set; }
+
         public JadeToken(string nodeName, List<string> classes, string id, Dictionary<string, string> attributes, int indentationLevel)
         {
             NodeName = nodeName;
