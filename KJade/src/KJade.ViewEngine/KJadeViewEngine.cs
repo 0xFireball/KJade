@@ -58,8 +58,8 @@ namespace KJade.ViewEngine
             }
 
             var jadeCompiler = new JadeHtmlCompiler();
-            var html = jadeCompiler.Compile(content, model);
-            return html;
+            var compiledHtml = jadeCompiler.Compile(content, model);
+            return compiledHtml.Value.ToString();
         }
     }
 }
