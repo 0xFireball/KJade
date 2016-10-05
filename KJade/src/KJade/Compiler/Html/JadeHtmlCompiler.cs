@@ -6,13 +6,6 @@ namespace KJade.Compiler.Html
 {
     public class JadeHtmlCompiler : JadeCompiler
     {
-        public JadeHtmlCompilerOptions Options { get; }
-
-        public JadeHtmlCompiler(JadeHtmlCompilerOptions options)
-        {
-            Options = options;
-        }
-
         private HtmlNode GetHtmlNode(JNode jnode)
         {
             var retNode = new HtmlNode
@@ -42,40 +35,29 @@ namespace KJade.Compiler.Html
         {
             StringBuilder attrStrBuilder = new StringBuilder();
 
-            var idAttr = string.IsNullOrEmpty(node.Id) ? "" : Options.Minify ? $" id = \"{node.Id}\"" : $" id=\"{node.Id}\"";
-            var classAttr = node.Classes == null || node.Classes.Count == 0 ? "" : Options.Minify ? $" class = \"{string.Join(" ", node.Classes)}\"" : $" class=\"{string.Join(" ", node.Classes)}\"";
+            var idAttr = string.IsNullOrEmpty(node.Id) ? "" : $" id=\"{node.Id}\"";
+            var classAttr = node.Classes == null || node.Classes.Count == 0 ? "" : $" class=\"{string.Join(" ", node.Classes)}\"";
 
-            var genericAttrs = node.Attributes == null || node.Attributes.Count == 0 ? "" : Options.Minify ? $"{string.Join(" ", node.Attributes.Select(attr => { return $" {attr.Key} = \"{attr.Value}\""; }))}" : $"{string.Join(" ", node.Attributes.Select(attr => { return $" {attr.Key}=\"{attr.Value}\""; }))}";
+            var genericAttrs = node.Attributes == null || node.Attributes.Count == 0 ? "" : $" {string.Join(" ", node.Attributes.Select(attr => { return $"{attr.Key}=\"{attr.Value}\""; }))}";
 
             attrStrBuilder.Append(idAttr);
             attrStrBuilder.Append(classAttr);
             attrStrBuilder.Append(genericAttrs);
-            return attrStrBuilder.ToString();
+            var resStr = attrStrBuilder.ToString();
+            return resStr;
         }
 
         private void EmitHtml(HtmlNode rootNode, StringBuilder outputBuilder)
         {
             var attributes = BuildAttributeString(rootNode);
-            outputBuilder.Append("<" + rootNode.Element + $" {attributes}>");
-            if (Options.Minify)
-            {
-                outputBuilder.AppendLine();
-            }
+            outputBuilder.Append("<" + rootNode.Element + $"{attributes}>");
             outputBuilder.Append(rootNode.Value);
-            if (Options.Minify)
-            {
-                outputBuilder.AppendLine();
-            }
             //Recursively emit children
             foreach (var nodeChild in rootNode.Children)
             {
                 EmitHtml(nodeChild, outputBuilder);
             }
             outputBuilder.Append("</" + rootNode.Element + ">");
-            if (Options.Minify)
-            {
-                outputBuilder.AppendLine();
-            }
         }
 
         protected override IJadeCompileResult CompileFromAst(JRootNode ast)
