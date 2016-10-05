@@ -33,18 +33,24 @@ Here's a short document demonstrating some of the syntax:
 ```jade
 html
     head
-        title Test KJade page
+        title Test Page
     body
-        div.header#intro
-            h1 This is a test KJade page.
+        div#intro(a1="val1",a2="val2")
+            h1 This is a KJade test!
+            p easy
+            p.friendly easier!
             p.
-                Hello, World!
-                I would write a longer paragraph
-                But i'm too lazy...
-            h3 Three cheers for KJade!
-        //div is automatically inferred if not specified!
-        .container#second
-            h2 This is in a container div!
+                Free form
+                paragraph!
+            h1 Hello, #{model.Name}!
+        .lol#infer-node-type
+        .btn.btn-default.btn-cool.btn-amazing
+        div#some-id.another-class
+            h2 Some more information
+        div.some-class.some-other-class
+            h2 Finally
+        div(some-attr="some value")
+            p This div is really unique, using paren notation!
 ```
 
 Additionally, block comments are not supported, only single line comments with `//` are supported.
