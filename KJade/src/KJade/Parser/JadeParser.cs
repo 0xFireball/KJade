@@ -22,6 +22,7 @@ namespace KJade.Parser
                 Classes = inputToken.Classes,
                 Element = inputToken.NodeName,
                 Id = inputToken.Id,
+                IndentationLevel = inputToken.IndentationLevel,
                 Value = inputToken.Value,
             };
         }

@@ -4,6 +4,6 @@ namespace KJade.Compiler
 {
     public interface IJadeCompileResult
     {
-        StringBuilder TextValue { get; }
+        StringBuilder Value { get; }
     }
 }
