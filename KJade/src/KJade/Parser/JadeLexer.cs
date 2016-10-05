@@ -24,7 +24,7 @@ namespace KJade.Parser
             int indLv = 0;
             for (int i = 1; rl.StartsWith(ii, StringComparison.CurrentCulture); i++)
             {
-                rl = rl.EatString(ii);
+                rl = rl.Eat(ii);
                 indLv = i;
             }
             return new Tuple<int, string>(indLv, rl);
@@ -160,7 +160,7 @@ namespace KJade.Parser
                         var attributeName = components[0];
                         var attributeValue = components[1];
                         //clean up attribute value
-                        attributeValue = attributeValue.EatString("\""); //Eat the beginning `"` character
+                        attributeValue = attributeValue.Eat("\""); //Eat the beginning `"` character
                         attributeValue = attributeValue.Last() == '"' ? attributeValue.Substring(0, attributeValue.Length - 1) : attributeValue; //Strip ending quote
                         //Save the attribute
                         nodeAttributes.Add(attributeName, attributeValue);
@@ -170,6 +170,7 @@ namespace KJade.Parser
 
                 if (processedTokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
                 {
+                    processedTokValue = processedTokValue.Substring(0, processedTokValue.Length - 1);
                     multilineScope = true;
                     multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
                 }

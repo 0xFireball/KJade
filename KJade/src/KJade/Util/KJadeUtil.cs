@@ -29,7 +29,7 @@ namespace KJade.Util
         /// <param name="str">The string to operate on</param>
         /// <param name="eat">The string to eat</param>
         /// <returns></returns>
-        public static string EatString(this string str, string eat)
+        public static string Eat(this string str, string eat)
         {
             if (!str.StartsWith(eat, StringComparison.CurrentCulture)) { throw new ArgumentException("The input string must begin with the string to eat.", nameof(str)); }
             for (int i = 0; eat.Length > 0 && str[0] == eat[0]; i++)
