@@ -1,4 +1,7 @@
 {
+  "title": "KJade",
+  "copyright": "(c) Copyright 0xFireball, 2016",
+  "description": "KJade Template Engine Parser",
   "version": "1.0.0-*",
 
   "dependencies": {

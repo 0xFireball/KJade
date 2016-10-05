@@ -1,4 +1,7 @@
-﻿{
+{
+  "title": "KJade ViewEngine",
+  "copyright": "(c) Copyright 0xFireball, 2016",
+  "description": "KJade ViewEngine for NancyFx",
   "version": "1.0.0-*",
 
   "dependencies": {
