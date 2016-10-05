@@ -193,7 +193,7 @@ namespace KJade.Parser
                     //Remove the name
                     remainingValue = nodeNameRegex.Replace(remainingValue, "");
                     //Strip any unecessary whitespace
-                    remainingValue.Trim();
+                    remainingValue = remainingValue.Trim();
 
                     //If the remaining value is just empty, it's null, not set
                     if (string.IsNullOrWhiteSpace(remainingValue))
