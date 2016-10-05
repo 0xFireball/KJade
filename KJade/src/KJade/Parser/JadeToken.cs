@@ -22,6 +22,8 @@ namespace KJade.Parser
 
         public string Value { get; set; }
 
+        public string TextRepresentation { get; set; }
+
         public JadeToken(string nodeName, List<string> classes, string id, Dictionary<string, string> attributes, int indentationLevel)
         {
             NodeName = nodeName;

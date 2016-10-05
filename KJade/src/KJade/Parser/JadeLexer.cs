@@ -22,7 +22,7 @@ namespace KJade.Parser
             string rl = line;
             string ii = indentIndicator;
             int indLv = 0;
-            for (int i = 1; rl.StartsWith(ii, System.StringComparison.CurrentCulture); i++)
+            for (int i = 1; rl.StartsWith(ii, StringComparison.CurrentCulture); i++)
             {
                 rl = rl.EatString(ii);
                 indLv = i;
@@ -63,7 +63,6 @@ namespace KJade.Parser
         public List<JadeToken> ReadCode(string input)
         {
             input = input.Strip(IgnoredCharacters) + "\n"; //Strip useless characters and add a trailing \n, as it simplifies lexing
-
 
             Queue<RawToken> rawTokens = new Queue<RawToken>(); //a queue of raw tokens to be processed
             string[] codeLines = input.Split('\n');
@@ -117,11 +116,10 @@ namespace KJade.Parser
 
                 //Normal node token
                 //Look for indicators showing end of node name
-                var nodeRegex = new Regex(@"^\w+(?=(\.|#|\())", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                var nodeNameMatch = nodeRegex.Match(processedTokValue); //Only match one
-                //If the match succeeded, there was more than just the node name.
-                //Otherwise, the only part of the token value was the node name anyway
-                var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : processedTokValue;
+                var nodeNameRegex = new Regex(@"(^\w+(?=(\.|#|\()))|(^\w+)", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                var nodeNameMatch = nodeNameRegex.Match(processedTokValue); //Only match one
+                //The match should have extracted the node name. If not, there is no node name.
+                var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : null;
                 //Don't remove the name yet, it will be used to verify later
 
                 var classes = new List<string>();
@@ -176,8 +174,10 @@ namespace KJade.Parser
                     multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
                 }
 
-                //If node name is empty, and there are classes or an Id, it's a div
-                if (string.IsNullOrEmpty(processedTokValue))
+                string remainingValue = processedTokValue;
+
+                //If node name is empty, and there are classes or an Id, it's a div. There also shouldn't be any value.
+                if (string.IsNullOrWhiteSpace(processedTokValue))
                 {
                     //If the processed token value is empty, then the name must also be empty
                     //The name was not removed, but attribute sets, ids, and classes were removed.
@@ -186,12 +186,35 @@ namespace KJade.Parser
                     //processedTokValue = "div"; //This is HTML-specific though, so we will mark the node name null, as none was specified
                     nodeName = null;
                 }
+                else
+                {
+                    //Normal node, get the value now
+                    //All that should be left now is the name and the value.
+                    //Remove the name
+                    remainingValue = nodeNameRegex.Replace(remainingValue, "");
+                    //Strip any unecessary whitespace
+                    remainingValue.Trim();
+
+                    //If the remaining value is just empty, it's null, not set
+                    if (string.IsNullOrWhiteSpace(remainingValue))
+                    {
+                        remainingValue = null;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(remainingValue)) //If just whitespace, make it null
+                {
+                    remainingValue = null;
+                }
 
                 var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, nodeAttributes, rawTok.IndentLevel);
+
                 jadeTokens.Add(jTok);
+                jTok.Value = remainingValue;
+                jTok.TextRepresentation = rawTok.Value; //Store the raw text representation
                 previousIndentLevel = rawTok.IndentLevel;
             }
-            return null; //TODO: update
+            return jadeTokens; //TODO: update
         }
     }
 }

@@ -3,10 +3,22 @@ using System.Text;
 
 namespace KJade.Ast
 {
-    public abstract class JNode
+    public class JNode
     {
         public List<JNode> Children { get; set; } = new List<JNode>();
 
         public StringBuilder TextRepresentation { get; set; } = new StringBuilder();
+
+        public string Element { get; set; }
+
+        public List<string> Classes { get; set; }
+
+        public string Id { get; set; }
+
+        public Dictionary<string, string> Attributes { get; set; }
+
+        public int IndentationLevel { get; set; }
+
+        public string Value { get; set; }
     }
 }
