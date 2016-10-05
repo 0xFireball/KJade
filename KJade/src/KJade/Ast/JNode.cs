@@ -7,8 +7,6 @@ namespace KJade.Ast
     {
         public List<JNode> Children { get; set; } = new List<JNode>();
 
-        public StringBuilder TextRepresentation { get; set; } = new StringBuilder();
-
         public string Element { get; set; }
 
         public List<string> Classes { get; set; }
@@ -20,5 +18,10 @@ namespace KJade.Ast
         public int IndentationLevel { get; set; }
 
         public string Value { get; set; }
+
+        public override string ToString()
+        {
+            return $"[{Element}] {Value}";
+        }
     }
 }
