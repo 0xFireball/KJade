@@ -50,3 +50,14 @@ html
 Additionally, block comments are not supported, only single line comments with `//` are supported.
 Each comment must be on its own line. Indentation before the `//` is ignored.
 
+### Variable replacement
+
+KJade's variable replacement works differently than Jade's:
+The `Compile` method of `JadeCompiler` has an optional argument specifying a model, which can be
+any object.
+
+For example, let our model be an object like this: `{ Name = "Bob" }`
+Then, in the value of a KJade block, `Hello, #{model.Name}!` would evaluate to `Hello, Bob!`.
+
+Additionally, putting a `!` before the `#` will tell KJade to automatically HTML-encode the value
+of the property of the model.
