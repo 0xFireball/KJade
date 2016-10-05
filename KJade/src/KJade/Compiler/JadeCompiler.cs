@@ -55,7 +55,7 @@ namespace KJade.Compiler
                 return DynamicDictionaryPropertyEvaluator(model, propertyName);
             }
 
-            throw new ArgumentException("model must be a standard type or implement IDictionary<string, object>", "model");
+            throw new ArgumentException("model must be a standard type or implement IDictionary<string, object>", nameof(model));
         }
 
         /// <summary>
