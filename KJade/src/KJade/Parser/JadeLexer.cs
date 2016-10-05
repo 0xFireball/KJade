@@ -62,7 +62,8 @@ namespace KJade.Parser
 
         public List<JadeToken> ReadCode(string input)
         {
-            input = input.Strip(IgnoredCharacters); //Strip useless characters
+            input = input.Strip(IgnoredCharacters) + "\n"; //Strip useless characters and add a trailing \n, as it simplifies lexing
+
 
             Queue<RawToken> rawTokens = new Queue<RawToken>(); //a queue of raw tokens to be processed
             string[] codeLines = input.Split('\n');
@@ -88,6 +89,10 @@ namespace KJade.Parser
             foreach (var rawTok in rawTokens)
             {
                 var processedTokValue = rawTok.Value;
+                if (processedTokValue.StartsWith("//", StringComparison.CurrentCulture))
+                {
+                    break;
+                }
                 if (multilineScope) //We're in a special area, normal rules don't apply
                 {
                     if (rawTok.IndentLevel < multilineScopeStart)
@@ -99,7 +104,8 @@ namespace KJade.Parser
                     }
                     else
                     {
-                        //We're still in the multiline scope. Edit the previous token.
+                        //We're still in the multiline scope.
+                        //Edit the previous token.
                         //Grab the last token
                         var prevTok = jadeTokens.Last();
 
