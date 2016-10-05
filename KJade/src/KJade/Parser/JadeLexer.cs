@@ -116,11 +116,11 @@ namespace KJade.Parser
                 //If the match succeeded, there was more than just the node name.
                 //Otherwise, the only part of the token value was the node name anyway
                 var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : processedTokValue;
-                nodeRegex.Replace(processedTokValue, ""); //Remove matched part of value
+                //Don't remove the name yet, it will be used to verify later
 
                 var classes = new List<string>();
                 var nodeAttributes = new Dictionary<string, string>();
-                var nodeIdAttribute = string.Empty;
+                string nodeIdAttribute = null; //none specified
 
                 //Attempt to read classes
                 var classRegex = new Regex(@"\.(\w|-)+");
@@ -130,13 +130,13 @@ namespace KJade.Parser
                 {
                     classes.Add(classMatch.Value);
                 }
-                classRegex.Replace(processedTokValue, ""); //Remove matched part of value
+                processedTokValue = classRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 //Attempt to read id
                 var idRegex = new Regex(@"\#(\w|-)+");
                 var idMatch = idRegex.Match(processedTokValue);
                 nodeIdAttribute = idMatch.Success ? idMatch.Value : nodeIdAttribute;
-                idRegex.Replace(processedTokValue, ""); //Remove matched part of value
+                processedTokValue = idRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 //Look for an attribute group - looks like this: (attr="some value")
                 var attributeGroupRegex = new Regex(@"\(([^\)]+)\)");
@@ -162,12 +162,25 @@ namespace KJade.Parser
                         nodeAttributes.Add(attributeName, attributeValue);
                     }
                 }
+                processedTokValue = attributeGroupRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 if (processedTokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
                 {
                     multilineScope = true;
                     multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
                 }
+
+                //If node name is empty, and there are classes or an Id, it's a div
+                if (string.IsNullOrEmpty(processedTokValue))
+                {
+                    //If the processed token value is empty, then the name must also be empty
+                    //The name was not removed, but attribute sets, ids, and classes were removed.
+                    //This, if the remaining content is empty, the name is empty.
+                    //In HTML, an empty name indicates that the node is a div.
+                    //processedTokValue = "div"; //This is HTML-specific though, so we will mark the node name null, as none was specified
+                    nodeName = null;
+                }
+
                 var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, nodeAttributes, rawTok.IndentLevel);
                 jadeTokens.Add(jTok);
                 previousIndentLevel = rawTok.IndentLevel;
