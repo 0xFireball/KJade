@@ -87,7 +87,7 @@ namespace KJade.Parser
             int previousIndentLevel = 0;
             foreach (var rawTok in rawTokens)
             {
-                var tokValue = rawTok.Value;
+                var processedTokValue = rawTok.Value;
                 if (multilineScope) //We're in a special area, normal rules don't apply
                 {
                     if (rawTok.IndentLevel < multilineScopeStart)
@@ -112,35 +112,63 @@ namespace KJade.Parser
                 //Normal node token
                 //Look for indicators showing end of node name
                 var nodeRegex = new Regex(@"^\w+(?=(\.|#|\())", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                var nodeNameMatch = nodeRegex.Match(tokValue); //Only match one
+                var nodeNameMatch = nodeRegex.Match(processedTokValue); //Only match one
                 //If the match succeeded, there was more than just the node name.
                 //Otherwise, the only part of the token value was the node name anyway
-                var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : tokValue;
+                var nodeName = nodeNameMatch.Success ? nodeNameMatch.Value : processedTokValue;
+                nodeRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 var classes = new List<string>();
-                var attributes = new Dictionary<string, string>();
+                var nodeAttributes = new Dictionary<string, string>();
                 var nodeIdAttribute = string.Empty;
 
                 //Attempt to read classes
                 var classRegex = new Regex(@"\.(\w|-)+");
-                var classMatches = classRegex.Matches(tokValue);
+                var classMatches = classRegex.Matches(processedTokValue);
                 //Add matched class names to classes collection
                 foreach (Match classMatch in classMatches)
                 {
                     classes.Add(classMatch.Value);
                 }
+                classRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 //Attempt to read id
                 var idRegex = new Regex(@"\#(\w|-)+");
-                var idMatch = idRegex.Match(tokValue);
+                var idMatch = idRegex.Match(processedTokValue);
                 nodeIdAttribute = idMatch.Success ? idMatch.Value : nodeIdAttribute;
+                idRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
-                if (tokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
+                //Look for an attribute group - looks like this: (attr="some value")
+                var attributeGroupRegex = new Regex(@"\(([^\)]+)\)");
+                var attributeGroupMatch = attributeGroupRegex.Match(processedTokValue);
+                if (attributeGroupMatch.Success)
+                {
+                    //An attribute group was found!
+                    var attributeGroupText = attributeGroupMatch.Value;
+                    //Remove the opening ( and the closing )
+                    attributeGroupText = attributeGroupText.Substring(1, attributeGroupText.Length - 2);
+                    //Parse the attribute group
+                    var nameValuePairs = attributeGroupText.Split(',');
+
+                    foreach (var nvp in nameValuePairs)
+                    {
+                        var components = nvp.Split('=');
+                        var attributeName = components[0];
+                        var attributeValue = components[1];
+                        //clean up attribute value
+                        attributeValue = attributeValue.EatString("\""); //Eat the beginning `"` character
+                        attributeValue = attributeValue.Last() == '"' ? attributeValue.Substring(0, attributeValue.Length - 1) : attributeValue; //Strip ending quote
+                        //Save the attribute
+                        nodeAttributes.Add(attributeName, attributeValue);
+                    }
+                }
+
+                if (processedTokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
                 {
                     multilineScope = true;
                     multilineScopeStart = rawTok.IndentLevel; //Where the multiline scope started
                 }
-                var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, attributes, rawTok.IndentLevel);
+                var jTok = new JadeToken(nodeName, classes, nodeIdAttribute, nodeAttributes, rawTok.IndentLevel);
                 jadeTokens.Add(jTok);
                 previousIndentLevel = rawTok.IndentLevel;
             }
