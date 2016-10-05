@@ -1,7 +1,7 @@
 
 # KJade
 
-A parser for a slightly modified variant of the Jade/PugJS template engine.
+A parser for a variant of the Jade/PugJS template engine.
 Built for .NET core, and intended for use with NancyFX.
 
 This parser is an experimental implementation of the Jade syntax.
