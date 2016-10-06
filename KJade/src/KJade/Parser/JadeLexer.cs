@@ -155,7 +155,8 @@ namespace KJade.Parser
                     //Remove the opening ( and the closing )
                     attributeGroupText = attributeGroupText.Substring(1, attributeGroupText.Length - 2);
                     //Parse the attribute group
-                    var nameValuePairs = attributeGroupText.Split(',');
+                    var attributeSeparatorRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                    var nameValuePairs = attributeSeparatorRegex.Split(attributeGroupText);
 
                     foreach (var nvp in nameValuePairs)
                     {
