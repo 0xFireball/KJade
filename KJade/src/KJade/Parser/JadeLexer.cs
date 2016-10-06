@@ -160,7 +160,8 @@ namespace KJade.Parser
 
                     foreach (var nvp in nameValuePairs)
                     {
-                        var components = nvp.Split('=');
+                        var nvpRegex = new Regex("=(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                        var components = nvpRegex.Split(nvp);
                         var attributeName = components[0];
                         var attributeValue = components[1];
                         //clean up attribute value
