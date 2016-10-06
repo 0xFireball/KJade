@@ -30,7 +30,7 @@ namespace KJade.ViewEngine
             //Nothing to really do here
         }
 
-        private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>\w+)", RegexOptions.Compiled);
+        private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>(\w|/)+)", RegexOptions.Compiled);
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
