@@ -7,6 +7,7 @@ namespace KJade.Compiler.Html
     public class JadeHtmlCompiler : JadeCompiler
     {
         private readonly string[] selfClosingElements = { "meta" };
+        private readonly string[] requiredExpandedElements = { "script" };
 
         private HtmlNode GetHtmlNode(JNode jnode)
         {
@@ -52,7 +53,7 @@ namespace KJade.Compiler.Html
         private void EmitHtml(HtmlNode rootNode, StringBuilder outputBuilder)
         {
             var attributes = BuildAttributeString(rootNode);
-            if (rootNode.Value != null || (rootNode.Children != null && rootNode.Children.Count > 0))
+            if (rootNode.Value != null || requiredExpandedElements.Contains(rootNode.Element) || (rootNode.Children != null && rootNode.Children.Count > 0))
             {
                 outputBuilder.Append("<" + rootNode.Element + $"{attributes}>");
                 outputBuilder.Append(rootNode.Value);
@@ -71,7 +72,7 @@ namespace KJade.Compiler.Html
                 }
                 else
                 {
-                    outputBuilder.Append("<" + rootNode.Element + $"{attributes}/>");
+                    outputBuilder.Append("<" + rootNode.Element + $"{attributes} />");
                 }
             }
         }
