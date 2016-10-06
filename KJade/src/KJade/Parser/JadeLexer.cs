@@ -129,21 +129,7 @@ namespace KJade.Parser
                 var nodeAttributes = new Dictionary<string, string>();
                 string nodeIdAttribute = null; //none specified
 
-                //Attempt to read classes
-                var classRegex = new Regex(@"\.(\w|-)+");
-                var classMatches = classRegex.Matches(processedTokValue);
-                //Add matched class names to classes collection
-                foreach (Match classMatch in classMatches)
-                {
-                    classes.Add(classMatch.Value);
-                }
-                processedTokValue = classRegex.Replace(processedTokValue, ""); //Remove matched part of value
-
-                //Attempt to read id
-                var idRegex = new Regex(@"\#(\w|-)+");
-                var idMatch = idRegex.Match(processedTokValue);
-                nodeIdAttribute = idMatch.Success ? idMatch.Value : nodeIdAttribute;
-                processedTokValue = idRegex.Replace(processedTokValue, ""); //Remove matched part of value
+                //Read attributes first, as they may contain characters that will trigger class and Id regexes
 
                 //Look for an attribute group - looks like this: (attr="some value")
                 var attributeGroupRegex = new Regex(@"\(([^\)]+)\)");
@@ -172,6 +158,22 @@ namespace KJade.Parser
                     }
                 }
                 processedTokValue = attributeGroupRegex.Replace(processedTokValue, ""); //Remove matched part of value
+
+                //Attempt to read classes
+                var classRegex = new Regex(@"\.(\w|-)+");
+                var classMatches = classRegex.Matches(processedTokValue);
+                //Add matched class names to classes collection
+                foreach (Match classMatch in classMatches)
+                {
+                    classes.Add(classMatch.Value);
+                }
+                processedTokValue = classRegex.Replace(processedTokValue, ""); //Remove matched part of value
+
+                //Attempt to read id
+                var idRegex = new Regex(@"\#(\w|-)+");
+                var idMatch = idRegex.Match(processedTokValue);
+                nodeIdAttribute = idMatch.Success ? idMatch.Value : nodeIdAttribute;
+                processedTokValue = idRegex.Replace(processedTokValue, ""); //Remove matched part of value
 
                 if (processedTokValue.EndsWith(".", StringComparison.CurrentCulture)) //This token isn't ending yet
                 {
