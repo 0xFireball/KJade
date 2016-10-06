@@ -38,6 +38,9 @@ namespace KJade.Parser
                 string rl = line;
                 //Check if the first character is an indent.
                 //If not, just continue in the loop.
+
+                if (rl.Length == 0) continue;
+
                 switch (rl[0])
                 {
                     case ' ':
