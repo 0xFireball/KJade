@@ -93,11 +93,11 @@ namespace KJade.Parser
                 var processedTokValue = rawTok.Value;
                 if (processedTokValue.StartsWith("//", StringComparison.CurrentCulture))
                 {
-                    break;
+                    continue;
                 }
                 if (multilineScope) //We're in a special area, normal rules don't apply
                 {
-                    if (rawTok.IndentLevel < multilineScopeStart)
+                    if (rawTok.IndentLevel <= multilineScopeStart)
                     {
                         //The current indent level is less than where the multiline scope started
                         //Exit the multiline scope
