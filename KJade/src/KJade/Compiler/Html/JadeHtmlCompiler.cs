@@ -6,6 +6,8 @@ namespace KJade.Compiler.Html
 {
     public class JadeHtmlCompiler : JadeCompiler
     {
+        private readonly string[] selfClosingElements = { "meta" };
+
         private HtmlNode GetHtmlNode(JNode jnode)
         {
             var retNode = new HtmlNode
@@ -50,14 +52,28 @@ namespace KJade.Compiler.Html
         private void EmitHtml(HtmlNode rootNode, StringBuilder outputBuilder)
         {
             var attributes = BuildAttributeString(rootNode);
-            outputBuilder.Append("<" + rootNode.Element + $"{attributes}>");
-            outputBuilder.Append(rootNode.Value);
-            //Recursively emit children
-            foreach (var nodeChild in rootNode.Children)
+            if (rootNode.Value != null || (rootNode.Children != null && rootNode.Children.Count > 0))
             {
-                EmitHtml(nodeChild, outputBuilder);
+                outputBuilder.Append("<" + rootNode.Element + $"{attributes}>");
+                outputBuilder.Append(rootNode.Value);
+                //Recursively emit children
+                foreach (var nodeChild in rootNode.Children)
+                {
+                    EmitHtml(nodeChild, outputBuilder);
+                }
+                outputBuilder.Append("</" + rootNode.Element + ">");
             }
-            outputBuilder.Append("</" + rootNode.Element + ">");
+            else //No children, collapse tag
+            {
+                if (selfClosingElements.Contains(rootNode.Element))
+                {
+                    outputBuilder.Append("<" + rootNode.Element + $"{attributes}>");
+                }
+                else
+                {
+                    outputBuilder.Append("<" + rootNode.Element + $"{attributes}/>");
+                }
+            }
         }
 
         protected override IJadeCompileResult CompileFromAst(JRootNode ast)
