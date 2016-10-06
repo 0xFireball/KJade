@@ -91,7 +91,7 @@ namespace KJade.Parser
             foreach (var rawTok in rawTokens)
             {
                 var processedTokValue = rawTok.Value;
-                if (processedTokValue.StartsWith("//", StringComparison.CurrentCulture))
+                if (processedTokValue.StartsWith("//", StringComparison.CurrentCulture) || string.IsNullOrWhiteSpace(processedTokValue))
                 {
                     continue;
                 }
