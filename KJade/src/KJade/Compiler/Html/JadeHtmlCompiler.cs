@@ -7,7 +7,7 @@ namespace KJade.Compiler.Html
     public class JadeHtmlCompiler : JadeCompiler
     {
         private readonly string[] selfClosingElements = { "meta" };
-        private readonly string[] requiredExpandedElements = { "script" };
+        private readonly string[] requiredExpandedElements = { "script", "div" };
 
         private HtmlNode GetHtmlNode(JNode jnode)
         {
