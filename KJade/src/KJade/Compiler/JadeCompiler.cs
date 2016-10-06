@@ -141,7 +141,7 @@ namespace KJade.Compiler
               .Replace("&amp;", "&");
         }
 
-        public IJadeCompileResult Compile(string input, object model)
+        public string ReplaceInput(string input, object model)
         {
             //Replace variables
             var replacedInput = SingleVariableSubstitutionRegex.Replace(input, m =>
@@ -159,6 +159,12 @@ namespace KJade.Compiler
                 }
                 return m.Groups["Encode"].Success ? XmlEncode(substitution.Item2.ToString()) : substitution.Item2.ToString();
             });
+            return replacedInput;
+        }
+
+        public IJadeCompileResult Compile(string input, object model)
+        {
+            var replacedInput = ReplaceInput(input, model);
             return Compile(replacedInput);
         }
 

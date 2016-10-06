@@ -52,22 +52,35 @@ namespace KJade.ViewEngine
             return response;
         }
 
-        private string EvaluateKJade(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
+        private string ReadView(ViewLocationResult locationResult)
         {
             string content;
-            using (var reader = viewLocationResult.Contents.Invoke())
+            using (var reader = locationResult.Contents.Invoke())
             {
                 content = reader.ReadToEnd();
             }
+            return content;
+        }
 
+        private string PreprocessKJade(string kjade, object model, IRenderContext renderContext)
+        {
             //Recursively replace @import
-            content = ImportRegex.Replace(content, m =>
+            kjade = ImportRegex.Replace(kjade, m =>
             {
                 var partialViewName = m.Groups["ViewName"].Value;
                 var partialModel = model;
-                return EvaluateKJade(renderContext.LocateView(partialViewName, partialModel), model, renderContext);
+                return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), model, renderContext);
             });
+            var jadeCompiler = new JadeHtmlCompiler();
+            return jadeCompiler.ReplaceInput(kjade, model);
+        }
 
+        private string EvaluateKJade(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
+        {
+            string content = ReadView(viewLocationResult);
+
+            content = PreprocessKJade(content, model, renderContext);
+            
             var jadeCompiler = new JadeHtmlCompiler();
             var compiledHtml = jadeCompiler.Compile(content, model);
             return compiledHtml.Value.ToString();
