@@ -33,7 +33,7 @@ namespace KJade.ViewEngine
 
         private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>(\w|/)+)", RegexOptions.Compiled);
 
-        private static readonly Regex ConditionalRegex = new Regex(@"@if\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
+        private static readonly Regex ConditionalRegex = new Regex(@"@if(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
@@ -80,13 +80,14 @@ namespace KJade.ViewEngine
             {
                 var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
                 var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
+                var allowNonexistent = m.Groups["AllowNonexistent"].Success;
 
-                if (!propertyVal.Item1)
+                if (!propertyVal.Item1 && !allowNonexistent)
                 {
                     return "[ERR!]";
                 }
 
-                bool evaluateResult = propertyVal != null;
+                bool evaluateResult = propertyVal.Item2 != null;
 
                 var conditionalContent = m.Groups["Contents"].Value;
 
