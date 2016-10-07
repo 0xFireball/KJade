@@ -33,7 +33,7 @@ namespace KJade.ViewEngine
 
         private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>(\w|/)+)", RegexOptions.Compiled);
 
-        private static readonly Regex ConditionalRegex = new Regex(@"@if\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\w]*?)@endif", RegexOptions.Compiled);
+        private static readonly Regex ConditionalRegex = new Regex(@"@if\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
