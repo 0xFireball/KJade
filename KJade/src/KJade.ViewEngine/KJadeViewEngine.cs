@@ -1,4 +1,5 @@
-﻿using KJade.Compiler.Html;
+﻿using KJade.Compiler;
+using KJade.Compiler.Html;
 using Nancy;
 using Nancy.Responses;
 using Nancy.ViewEngines;
@@ -31,6 +32,8 @@ namespace KJade.ViewEngine
         }
 
         private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>(\w|/)+)", RegexOptions.Compiled);
+
+        private static readonly Regex ConditionalRegex = new Regex(@"@if\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\w]*?)@endif", RegexOptions.Compiled);
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
@@ -71,6 +74,29 @@ namespace KJade.ViewEngine
                 var partialModel = model;
                 return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), model, renderContext);
             });
+
+            //Process conditionals
+            kjade = ConditionalRegex.Replace(kjade, m =>
+            {
+                var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
+                var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
+
+                if (!propertyVal.Item1)
+                {
+                    return "[ERR!]";
+                }
+
+                bool evaluateResult = propertyVal != null;
+
+                var conditionalContent = m.Groups["Contents"].Value;
+
+                if (evaluateResult)
+                {
+                    return conditionalContent;
+                }
+                return string.Empty;
+            });
+
             var jadeCompiler = new JadeHtmlCompiler();
             return jadeCompiler.ReplaceInput(kjade, model);
         }
@@ -80,7 +106,7 @@ namespace KJade.ViewEngine
             string content = ReadView(viewLocationResult);
 
             content = PreprocessKJade(content, model, renderContext);
-            
+
             var jadeCompiler = new JadeHtmlCompiler();
             var compiledHtml = jadeCompiler.Compile(content, model);
             return compiledHtml.Value.ToString();
