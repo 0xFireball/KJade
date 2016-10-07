@@ -37,6 +37,7 @@ namespace KJade.ViewEngine
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
+            /*
             var response = new HtmlResponse();
             var html = renderContext.ViewCache.GetOrAdd(viewLocationResult, result =>
             {
@@ -53,6 +54,20 @@ namespace KJade.ViewEngine
             };
 
             return response;
+            */
+            return new HtmlResponse(contents: s =>
+            {
+                var writer = new StreamWriter(s);
+                var templateContents = renderContext.ViewCache.GetOrAdd(viewLocationResult, vr =>
+                {
+                    using (var reader = vr.Contents.Invoke())
+                        return reader.ReadToEnd();
+                });
+
+                var renderedHtml = EvaluateKJade(viewLocationResult, model, renderContext);
+                writer.Write(renderedHtml);
+                writer.Flush();
+            });
         }
 
         private string ReadView(ViewLocationResult locationResult)
