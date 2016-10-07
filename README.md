@@ -63,7 +63,17 @@ The `Compile` method of `JadeCompiler` has an optional argument specifying a mod
 any object.
 
 For example, let our model be an object like this: `{ Name = "Bob" }`
-Then, in the value of a KJade block, `Hello, #{model.Name}!` would evaluate to `Hello, Bob!`.
+Then, in the value of a KJade block, `Hello, #{model.Name}` would evaluate to `Hello, Bob`.
 
 Additionally, putting a `!` before the `#` will tell KJade to automatically HTML-encode the value
 of the property of the model.
+
+## KJadeViewEngine
+
+KJadeViewEngine is a NancyFx plugin that allows you to use KJade in your
+Nancy web applications.
+
+### Imports
+
+In the NancyFx View Engine plugin, you can import other views with `@import [view name]`.
+For example, `@import Header` will import the header view.
