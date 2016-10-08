@@ -31,7 +31,7 @@ namespace KJade.ViewEngine
             //Nothing to really do here
         }
 
-        private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>(\w|/)+)", RegexOptions.Compiled);
+        private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>[\w/.]+)", RegexOptions.Compiled);
 
         private static readonly Regex ConditionalRegex = new Regex(@"@if(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
 
