@@ -18,7 +18,14 @@
 			h2 Finally
 		div(some-attr="some value")
 			p This div is really unique, using paren notation!
-		dev(id="enumerable-test")
+		div(id="conditional-test")
+			@if model.SomeFlag
+				SomeFlag is true!
+			@endif
+			@ifnot model.SomeOtherFlag
+				SomeOtherFlag is false!
+			@endif
+		div(id="enumerable-test")
 			p Enumerable Test!
 			ul
 				@enumerable #{model.SomeEnumerable}
