@@ -77,3 +77,14 @@ Nancy web applications.
 
 In the NancyFx View Engine plugin, you can import other views with `@import [view name]`.
 For example, `@import Header` will import the header view.
+
+### Conditionals (Beta!)
+
+You can specify data that will only be shown if a property of the model evaluates to not null or true.
+Otherwise, the data will be hidden. This is useful for error messages. The syntax is as follows:
+
+```jade
+	@if model.InputHasError
+		Your input has an error.
+	@endif
+```

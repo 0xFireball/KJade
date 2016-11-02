@@ -8,7 +8,8 @@ namespace KJade.ViewEngine.Demo.Modules
         {
             Get("/test", args =>
             {
-                var model = new { Name = "Bob" };
+                var someList = new[] { "something1", "thing2", "thing3" };
+                var model = new { Name = "Bob", SomeEnumerable = someList };
                 return View["Test", model];
             });
         }

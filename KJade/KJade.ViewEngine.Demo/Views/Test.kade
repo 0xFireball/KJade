@@ -18,3 +18,8 @@
 			h2 Finally
 		div(some-attr="some value")
 			p This div is really unique, using paren notation!
+		dev(id="enumerable-test")
+			p Enumerable Test!
+			ul
+				@enumerable #{model.SomeEnumerable}
+					li {$element}
