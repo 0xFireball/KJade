@@ -20,13 +20,14 @@
 			p This div is really unique, using paren notation!
 		div(id="conditional-test")
 			@if model.SomeFlag
-				SomeFlag is true!
+			p SomeFlag is true!
 			@endif
 			@ifnot model.SomeOtherFlag
-				SomeOtherFlag is false!
+			p SomeOtherFlag is false!
 			@endif
 		div(id="enumerable-test")
 			p Enumerable Test!
 			ul
 				@enumerable #{model.SomeEnumerable}
-					li {$element}
+				li {$element}
+				@endenumerable

@@ -1,5 +1,8 @@
 ﻿using KJade.Ast;
 using KJade.Parser;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KJade.Compiler
@@ -7,6 +10,7 @@ namespace KJade.Compiler
     public abstract class JadeCompiler : IJadeCompiler
     {
         private static readonly Regex SingleVariableSubstitutionRegex = new Regex(@"(?<Encode>!)?#{model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))}", RegexOptions.Compiled);
+        private static readonly Regex ConditionalRegex = new Regex(@"@if(?<Not>not)?(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
 
         public static string XmlEncode(string value)
         {
@@ -28,7 +32,19 @@ namespace KJade.Compiler
               .Replace("&amp;", "&");
         }
 
-        public string ReplaceInput(string input, object model)
+        public string PerformStandardSubstitutions(string input, object model)
+        {
+            var substitutionList = new List<Func<string, object, string>>
+            {
+                PerformSingleSubstitutions,
+                PerformConditionalSubstitutions,
+            };
+            var replacedInput = input;
+            substitutionList.ForEach(subfunc=>replacedInput=subfunc(replacedInput, model));
+            return replacedInput;
+        }
+
+        private string PerformSingleSubstitutions(string input, object model)
         {
             //Replace variables
             var replacedInput = SingleVariableSubstitutionRegex.Replace(input, m =>
@@ -49,9 +65,56 @@ namespace KJade.Compiler
             return replacedInput;
         }
 
+        private string PerformConditionalSubstitutions(string input, object model)
+        {
+            //Process conditionals
+            var replacedInput = ConditionalRegex.Replace(input, m =>
+            {
+                var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
+                var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
+                var allowNonexistent = m.Groups["AllowNonexistent"].Success;
+                var negateResult = m.Groups["Not"].Success;
+
+                if (!propertyVal.Item1 && !allowNonexistent)
+                {
+                    return "[ERR!]";
+                }
+
+                bool evaluateResult = propertyVal.Item2 != null;
+
+                //Check if property result is a BOOLEAN
+                if (evaluateResult && propertyVal.Item2 is bool?)
+                {
+                    var booleanPropertyResult = propertyVal.Item2 as bool?;
+                    evaluateResult = (bool)booleanPropertyResult;
+                }
+
+                if (negateResult)
+                {
+                    evaluateResult = !evaluateResult;
+                    //We don't want them both true, as that will mean:
+                    //When we're looking for false, but allowing nonexistent,
+                    //true will be output, but negate will make it false :(
+                    if (!negateResult || !allowNonexistent)
+                    {
+                        evaluateResult = !evaluateResult;
+                    }
+                }
+
+                var conditionalContent = m.Groups["Contents"].Value;
+
+                if (evaluateResult)
+                {
+                    return conditionalContent;
+                }
+                return string.Empty;
+            });
+            return replacedInput;
+        }
+
         public IJadeCompileResult Compile(string input, object model)
         {
-            var replacedInput = ReplaceInput(input, model);
+            var replacedInput = PerformStandardSubstitutions(input, model);
             return Compile(replacedInput);
         }
 

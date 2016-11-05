@@ -33,8 +33,6 @@ namespace KJade.ViewEngine
 
         private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>[\w/.]+)", RegexOptions.Compiled);
 
-        private static readonly Regex ConditionalRegex = new Regex(@"@if(?<Not>not)?(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
-
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
             /*
@@ -90,51 +88,8 @@ namespace KJade.ViewEngine
                 return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), model, renderContext);
             });
 
-            //Process conditionals
-            kjade = ConditionalRegex.Replace(kjade, m =>
-            {
-                var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
-                var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
-                var allowNonexistent = m.Groups["AllowNonexistent"].Success;
-                var negateResult = m.Groups["Not"].Success;
-
-                if (!propertyVal.Item1 && !allowNonexistent)
-                {
-                    return "[ERR!]";
-                }
-
-                bool evaluateResult = propertyVal.Item2 != null;
-
-                //Check if property result is a BOOLEAN
-                if (evaluateResult && propertyVal.Item2 is bool?)
-                {
-                    var booleanPropertyResult = propertyVal.Item2 as bool?;
-                    evaluateResult = (bool)booleanPropertyResult;
-                }
-
-                if (negateResult)
-                {
-                    evaluateResult = !evaluateResult;
-                    //We don't want them both true, as that will mean:
-                    //When we're looking for false, but allowing nonexistent,
-                    //true will be output, but negate will make it false :(
-                    if (!negateResult || !allowNonexistent)
-                    {
-                        evaluateResult = !evaluateResult;
-                    }
-                }
-
-                var conditionalContent = m.Groups["Contents"].Value;
-
-                if (evaluateResult)
-                {
-                    return conditionalContent;
-                }
-                return string.Empty;
-            });
-
             var jadeCompiler = new JadeHtmlCompiler();
-            return jadeCompiler.ReplaceInput(kjade, model);
+            return jadeCompiler.PerformStandardSubstitutions(kjade, model);
         }
 
         private string EvaluateKJade(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
