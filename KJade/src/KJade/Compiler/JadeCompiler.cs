@@ -149,9 +149,14 @@ namespace KJade.Compiler
             return replacedInput;
         }
 
-        public IJadeCompileResult Compile(string input, object model)
+        public string PerformSubstitutions(string source, object model)
         {
-            var replacedInput = PerformStandardSubstitutions(input, model);
+            return PerformStandardSubstitutions(source, model);
+        }
+
+        public IJadeCompileResult Compile(string source, object model)
+        {
+            var replacedInput = PerformSubstitutions(source, model);
             return Compile(replacedInput);
         }
 

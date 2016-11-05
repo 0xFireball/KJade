@@ -1,4 +1,5 @@
-﻿using KJade.Compiler.Html;
+﻿using KJade.Compiler;
+using KJade.Compiler.Html;
 using Nancy;
 using Nancy.Responses;
 using Nancy.ViewEngines;
@@ -12,10 +13,12 @@ namespace KJade.ViewEngine
     public class KJadeViewEngine : IViewEngine
     {
         private readonly SuperSimpleViewEngine engineWrapper;
+        private IJadeCompiler jadeCompiler;
 
         public KJadeViewEngine(SuperSimpleViewEngine engineWrapper)
         {
             this.engineWrapper = engineWrapper;
+            jadeCompiler = new JadeHtmlCompiler();
         }
 
         public IEnumerable<string> Extensions => new[]
@@ -31,6 +34,7 @@ namespace KJade.ViewEngine
         }
 
         private static readonly Regex ImportRegex = new Regex(@"@import\s(?<ViewName>[\w/.]+)", RegexOptions.Compiled);
+        private static readonly Regex PartialRegex = new Regex(@"@partial\s(?<ViewName>[\w/.]+)(?<Separator>;)model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)", RegexOptions.Compiled);
 
         public Response RenderView(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
@@ -83,9 +87,21 @@ namespace KJade.ViewEngine
             kjade = ImportRegex.Replace(kjade, m =>
             {
                 var partialViewName = m.Groups["ViewName"].Value;
-                var partialModel = model;
-                return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), model, renderContext);
+                return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, model)), model, renderContext);
             });
+
+            //Recursively replace @partial
+            kjade = PartialRegex.Replace(kjade, m =>
+            {
+                var partialViewName = m.Groups["ViewName"].Value;
+                var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
+                var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
+                var partialModel = propertyVal.Item2;
+                return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), partialModel, renderContext);
+            });
+
+            //Run Substitutions
+            kjade = jadeCompiler.PerformSubstitutions(kjade, model);
 
             return kjade;
         }
@@ -96,7 +112,6 @@ namespace KJade.ViewEngine
 
             content = PreprocessKJade(content, model, renderContext);
 
-            var jadeCompiler = new JadeHtmlCompiler();
             var compiledHtml = jadeCompiler.Compile(content, model);
             return compiledHtml.Value.ToString();
         }

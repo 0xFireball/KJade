@@ -28,3 +28,6 @@
 				@enumerable model.SomeEnumerable
 				li {$element}
 				@endenumerable
+		div(id="partial-test")
+			p Partial Test!
+			@partial Components/PartialTest;model.PTestModel
