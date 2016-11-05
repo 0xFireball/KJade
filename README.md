@@ -4,6 +4,11 @@
 A parser for a subset of the Jade/PugJS template engine.
 Built for .NET core, and intended for use with NancyFX.
 
+KJade has no external dependencies; the lexer and parser were written
+from scratch with regex. HTML/XML building is done at the end, and KJade
+provides the `ICompiler` interface allowing anyone to implement a compiler
+to a language other than XML from the KJade AST, a simple tree.
+
 This parser is an experimental implementation of some of the Jade syntax.
 It works by reading through the code, lexing it into tokens,
 and building an AST from the tokens.
@@ -56,7 +61,14 @@ html
 Additionally, block comments are not supported, only single line comments with `//` are supported.
 Each comment must be on its own line. Indentation before the `//` is ignored.
 
-### Variable replacement
+### Experimental Features (Use at your own risk!)
+
+#### Tips
+
+- KJade is very indentation sensitive!
+- KJade does NOT support single quotes (`'`) for enclosing attribute values.
+
+#### Variable Replacement
 
 KJade's variable replacement works differently than Jade's:
 The `Compile` method of `JadeCompiler` has an optional argument specifying a model, which can be
@@ -68,23 +80,51 @@ Then, in the value of a KJade block, `Hello, #{model.Name}` would evaluate to `H
 Additionally, putting a `!` before the `#` will tell KJade to automatically HTML-encode the value
 of the property of the model.
 
-## KJadeViewEngine
-
-KJadeViewEngine is a NancyFx plugin that allows you to use KJade in your
-Nancy web applications.
-
-### Imports
-
-In the NancyFx View Engine plugin, you can import other views with `@import [view name]`.
-For example, `@import Header` will import the header view.
-
-### Conditionals (Beta!)
+### Conditionals
 
 You can specify data that will only be shown if a property of the model evaluates to not null or true.
 Otherwise, the data will be hidden. This is useful for error messages. The syntax is as follows:
 
 ```jade
-	@if model.InputHasError
-		Your input has an error.
-	@endif
+@if model.InputHasError
+Your input has an error.
+@endif
 ```
+
+### Enumerables
+
+You can expand data with Enumerables. If you pass in a property that implements `IEnumerable`,
+KJade will expand the code within, replacing `{$element}` with the string representation
+of the current element. You can use this to render lists or other repeating structures easily.
+
+```jade
+@enumerable model.SomeEnumerable
+li {$element}
+@endenumerable
+```
+
+## KJadeViewEngine
+
+KJadeViewEngine is a NancyFx plugin that allows you to use KJade in your
+Nancy web applications. These features are only available when using the view engine.
+
+### Imports
+
+In the NancyFx View Engine plugin, you can import other views with `@import [view name]`.
+For example, the following will import the header view:
+
+`@import Header`
+
+### Partials
+
+Partials are very similar to imports, except that they specify an alternate model.
+The syntax is as follows:
+
+`@partial [view name];[model]`
+
+For example:
+
+`@partial Components/PartialTest;model.PTestModel`
+
+This will import `Components/PartialTest` and evaluate it with the model `model.PTestModel`,
+where model is the model of the current view.
