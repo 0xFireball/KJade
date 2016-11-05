@@ -87,8 +87,7 @@ namespace KJade.ViewEngine
                 return PreprocessKJade(ReadView(renderContext.LocateView(partialViewName, partialModel)), model, renderContext);
             });
 
-            var jadeCompiler = new JadeHtmlCompiler();
-            return jadeCompiler.PerformStandardSubstitutions(kjade, model);
+            return kjade;
         }
 
         private string EvaluateKJade(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)

@@ -15,7 +15,7 @@ namespace KJade.Compiler
         private static readonly Regex ConditionalRegex = new Regex(@"@if(?<Not>not)?(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
         private static readonly Regex EnumerableExpansionRegex = new Regex(@"@enumerable\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endenumerable", RegexOptions.Compiled);
 
-        public static string XmlEncode(string value)
+        private static string XmlEncode(string value)
         {
             return value
               .Replace("<", "&lt;")
@@ -25,7 +25,7 @@ namespace KJade.Compiler
               .Replace("&", "&amp;");
         }
 
-        public static string XmlDecode(string value)
+        private static string XmlDecode(string value)
         {
             return value
               .Replace("&lt;", "<")
@@ -35,7 +35,7 @@ namespace KJade.Compiler
               .Replace("&amp;", "&");
         }
 
-        public string PerformStandardSubstitutions(string input, object model)
+        private string PerformStandardSubstitutions(string input, object model)
         {
             var substitutionList = new List<Func<string, object, string>>
             {
