@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace KJade.Compiler
 {
-    public class ModelReflectionUtil
+    public static class ModelReflectionUtil
     {
         /// <summary>
         /// Gets an IEnumerable of capture group values
@@ -95,8 +95,7 @@ namespace KJade.Compiler
             var properties = model.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
             var property =
-                properties.Where(p => string.Equals(p.Name, propertyName, StringComparison.CurrentCulture))
-                .FirstOrDefault();
+                properties.FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.CurrentCulture));
 
             return property == null ? new Tuple<bool, object>(false, null) : new Tuple<bool, object>(true, property.GetValue(model, null));
         }

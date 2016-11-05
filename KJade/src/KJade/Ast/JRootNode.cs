@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace KJade.Ast
+﻿namespace KJade.Ast
 {
     /// <summary>
     /// A node representing a root node.

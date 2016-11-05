@@ -1,14 +1,13 @@
 ﻿using KJade.Ast;
 using System.Linq;
 using System.Text;
-using System;
 
 namespace KJade.Compiler.Html
 {
     public class JadeHtmlCompiler : JadeCompiler
     {
         private readonly string[] selfClosingElements = { "meta" };
-        private readonly string[] requiredExpandedElements = { "script", "div", "textarea"};
+        private readonly string[] requiredExpandedElements = { "script", "div", "textarea" };
 
         private HtmlNode GetHtmlNode(JNode jnode)
         {

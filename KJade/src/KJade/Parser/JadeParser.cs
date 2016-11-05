@@ -89,7 +89,6 @@ namespace KJade.Parser
 
             //Prune the tree
 
-
             return rootNode;
         }
 

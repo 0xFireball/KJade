@@ -79,7 +79,7 @@ namespace KJade.Parser
                 var lToken = new RawToken
                 {
                     IndentLevel = indentedToken.Item1,
-                    Value = indentedToken.Item2,
+                    Value = indentedToken.Item2
                 };
                 rawTokens.Enqueue(lToken);
             }
