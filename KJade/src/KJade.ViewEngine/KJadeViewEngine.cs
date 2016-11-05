@@ -1,5 +1,4 @@
-﻿using KJade.Compiler;
-using KJade.Compiler.Html;
+﻿using KJade.Compiler.Html;
 using Nancy;
 using Nancy.Responses;
 using Nancy.ViewEngines;

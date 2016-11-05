@@ -2,7 +2,6 @@
 using KJade.Parser;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KJade.Compiler
@@ -40,7 +39,7 @@ namespace KJade.Compiler
                 PerformConditionalSubstitutions,
             };
             var replacedInput = input;
-            substitutionList.ForEach(subfunc=>replacedInput=subfunc(replacedInput, model));
+            substitutionList.ForEach(subfunc => replacedInput = subfunc(replacedInput, model));
             return replacedInput;
         }
 
@@ -75,30 +74,28 @@ namespace KJade.Compiler
                 var allowNonexistent = m.Groups["AllowNonexistent"].Success;
                 var negateResult = m.Groups["Not"].Success;
 
-                if (!propertyVal.Item1 && !allowNonexistent)
+                bool propertyExists = propertyVal.Item1;
+
+                //If the property doesnt exist and nonexistent is not allowed, error
+                if (!propertyExists && !allowNonexistent)
                 {
                     return "[ERR!]";
                 }
 
+                //Check if the property isn't null
                 bool evaluateResult = propertyVal.Item2 != null;
 
                 //Check if property result is a BOOLEAN
-                if (evaluateResult && propertyVal.Item2 is bool?)
+                if (evaluateResult && propertyVal.Item2 is bool?) //if the property isn't null, and if it's a boolean
                 {
+                    //Get the actual boolean value
                     var booleanPropertyResult = propertyVal.Item2 as bool?;
                     evaluateResult = (bool)booleanPropertyResult;
                 }
 
-                if (negateResult)
+                if (negateResult) //A NOT is present
                 {
-                    evaluateResult = !evaluateResult;
-                    //We don't want them both true, as that will mean:
-                    //When we're looking for false, but allowing nonexistent,
-                    //true will be output, but negate will make it false :(
-                    if (!negateResult || !allowNonexistent)
-                    {
-                        evaluateResult = !evaluateResult;
-                    }
+                    evaluateResult = !evaluateResult; //negate
                 }
 
                 var conditionalContent = m.Groups["Contents"].Value;
