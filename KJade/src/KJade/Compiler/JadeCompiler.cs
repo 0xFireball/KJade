@@ -1,15 +1,19 @@
 ﻿using KJade.Ast;
 using KJade.Parser;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace KJade.Compiler
 {
     public abstract class JadeCompiler : IJadeCompiler
     {
+        private static readonly string SubstitutionErrorString = "[ERR!]";
         private static readonly Regex SingleVariableSubstitutionRegex = new Regex(@"(?<Encode>!)?#{model(?:\.(?<ParameterName>[a-zA-Z0-9-_]+))}", RegexOptions.Compiled);
         private static readonly Regex ConditionalRegex = new Regex(@"@if(?<Not>not)?(?<AllowNonexistent>\?)?\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endif", RegexOptions.Compiled);
+        private static readonly Regex EnumerableExpansionRegex = new Regex(@"@enumerable\smodel(?:\.(?<ParameterName>[a-zA-Z0-9-_]+)+)?(?<Contents>[\s\S]*?)@endenumerable", RegexOptions.Compiled);
 
         public static string XmlEncode(string value)
         {
@@ -37,6 +41,7 @@ namespace KJade.Compiler
             {
                 PerformSingleSubstitutions,
                 PerformConditionalSubstitutions,
+                PerformEnumerableExpansionReplacement,
             };
             var replacedInput = input;
             substitutionList.ForEach(subfunc => replacedInput = subfunc(replacedInput, model));
@@ -52,7 +57,7 @@ namespace KJade.Compiler
                 var substitution = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
                 if (!substitution.Item1)
                 {
-                    return "[ERR!]";
+                    return SubstitutionErrorString;
                 }
 
                 if (substitution.Item2 == null)
@@ -79,7 +84,7 @@ namespace KJade.Compiler
                 //If the property doesnt exist and nonexistent is not allowed, error
                 if (!propertyExists && !allowNonexistent)
                 {
-                    return "[ERR!]";
+                    return SubstitutionErrorString;
                 }
 
                 //Check if the property isn't null
@@ -105,6 +110,41 @@ namespace KJade.Compiler
                     return conditionalContent;
                 }
                 return string.Empty;
+            });
+            return replacedInput;
+        }
+
+        private string PerformEnumerableExpansionReplacement(string input, object model)
+        {
+            //Replace variables
+            var replacedInput = EnumerableExpansionRegex.Replace(input, m =>
+            {
+                var properties = ModelReflectionUtil.GetCaptureGroupValues(m, "ParameterName");
+                var propertyVal = ModelReflectionUtil.GetPropertyValueFromParameterCollection(model, properties);
+
+                if (!propertyVal.Item1) //Enumerable doesn't exist
+                {
+                    return string.Empty;
+                }
+
+                var enumerable = propertyVal.Item2 as IEnumerable;
+                if (enumerable == null) //The object wasn't an enumerable
+                {
+                    return SubstitutionErrorString;
+                }
+
+                var expandedEnumerableBody = new StringBuilder();
+                var enumerableContent = m.Groups["Contents"].Value;
+                var enumerableItemRegex = new Regex(@"{\$element}", RegexOptions.Compiled);
+                foreach (var item in enumerable)
+                {
+                    var replacedContent = enumerableItemRegex.Replace(enumerableContent, item.ToString());
+                    expandedEnumerableBody.AppendLine(replacedContent);
+                }
+
+                var expandedEnumerableStr = expandedEnumerableBody.ToString();
+
+                return expandedEnumerableStr;
             });
             return replacedInput;
         }
