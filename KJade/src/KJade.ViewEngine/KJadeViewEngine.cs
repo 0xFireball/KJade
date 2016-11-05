@@ -13,7 +13,7 @@ namespace KJade.ViewEngine
     public class KJadeViewEngine : IViewEngine
     {
         private readonly SuperSimpleViewEngine engineWrapper;
-        private IJadeCompiler jadeCompiler;
+        private readonly IJadeCompiler jadeCompiler;
 
         public KJadeViewEngine(SuperSimpleViewEngine engineWrapper)
         {
@@ -25,7 +25,7 @@ namespace KJade.ViewEngine
         {
             "jade",
             "kjade",
-            "kade",
+            "kade"
         };
 
         public void Initialize(ViewEngineStartupContext viewEngineStartupContext)
@@ -108,7 +108,7 @@ namespace KJade.ViewEngine
 
         private string EvaluateKJade(ViewLocationResult viewLocationResult, dynamic model, IRenderContext renderContext)
         {
-            string content = ReadView(viewLocationResult);
+            var content = ReadView(viewLocationResult);
 
             content = PreprocessKJade(content, model, renderContext);
 

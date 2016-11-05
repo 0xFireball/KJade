@@ -41,7 +41,7 @@ namespace KJade.Compiler
             {
                 PerformSingleSubstitutions,
                 PerformConditionalSubstitutions,
-                PerformEnumerableExpansionReplacement,
+                PerformEnumerableExpansionReplacement
             };
             var replacedInput = input;
             substitutionList.ForEach(subfunc => replacedInput = subfunc(replacedInput, model));

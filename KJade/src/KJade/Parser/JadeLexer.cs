@@ -67,9 +67,9 @@ namespace KJade.Parser
         {
             input = input.Strip(IgnoredCharacters) + "\n"; //Strip useless characters and add a trailing \n, as it simplifies lexing
 
-            Queue<RawToken> rawTokens = new Queue<RawToken>(); //a queue of raw tokens to be processed
-            string[] codeLines = input.Split('\n');
-            string indentIndicator = InferIndentIndicator(codeLines);
+            var rawTokens = new Queue<RawToken>(); //a queue of raw tokens to be processed
+            var codeLines = input.Split('\n');
+            var indentIndicator = InferIndentIndicator(codeLines);
             //Process indentation structure
             foreach (string line in codeLines)
             {
@@ -84,7 +84,7 @@ namespace KJade.Parser
                 rawTokens.Enqueue(lToken);
             }
             //Create real Token objects based on the indentation structure
-            List<JadeToken> jadeTokens = new List<JadeToken>();
+            var jadeTokens = new List<JadeToken>();
             bool multilineScope = false; //whether we are in a multiline scope.
             int multilineScopeStart = 0;
             int previousIndentLevel = 0;

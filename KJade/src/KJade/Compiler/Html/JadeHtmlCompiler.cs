@@ -37,7 +37,7 @@ namespace KJade.Compiler.Html
 
         public string BuildAttributeString(HtmlNode node)
         {
-            StringBuilder attrStrBuilder = new StringBuilder();
+            var attrStrBuilder = new StringBuilder();
 
             var idAttr = string.IsNullOrEmpty(node.Id) ? "" : $" id=\"{node.Id}\"";
             var classAttr = node.Classes == null || node.Classes.Count == 0 ? "" : $" class=\"{string.Join(" ", node.Classes)}\"";

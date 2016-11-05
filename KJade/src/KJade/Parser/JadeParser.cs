@@ -23,18 +23,18 @@ namespace KJade.Parser
                 Element = inputToken.NodeName,
                 Id = inputToken.Id,
                 IndentationLevel = inputToken.IndentationLevel,
-                Value = inputToken.Value,
+                Value = inputToken.Value
             };
         }
 
         public JRootNode ParseTokens(List<JadeToken> tokens)
         {
-            string originalCode = string.Concat(tokens.Select(t => t.TextRepresentation + new string(' ', t.IndentationLevel) + '\n'));
-            JRootNode rootNode = new JRootNode();
+            var originalCode = string.Concat(tokens.Select(t => t.TextRepresentation + new string(' ', t.IndentationLevel) + '\n'));
+            var rootNode = new JRootNode();
             //Parse the input tokens and build an AST.
-            Stack<int> nestingLevel = new Stack<int>();
+            var nestingLevel = new Stack<int>();
             nestingLevel.Push(-1); //-1, signifying an unreachable nesting level. All nodes are children of this root.
-            Stack<JNode> lastNodeOnLevel = new Stack<JNode>();
+            var lastNodeOnLevel = new Stack<JNode>();
             lastNodeOnLevel.Push(rootNode);
             foreach (var jToken in tokens)
             {
@@ -97,7 +97,7 @@ namespace KJade.Parser
         {
             var precedingTokens = allTokens.Take(allTokens.Count - allTokens.IndexOf(currentToken));
             var precedingCode = string.Concat(precedingTokens.Select(t => t.TextRepresentation + new string(' ', t.IndentationLevel) + '\n'));
-            string[] precedingLines = precedingCode.Split(' ');
+            var precedingLines = precedingCode.Split(' ');
             return new CodePosition(precedingLines.Length + 1, 0);
         }
     }
